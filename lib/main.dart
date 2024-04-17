@@ -1,10 +1,18 @@
 import 'package:cubit_239/cubit/counter_cubit.dart';
 import 'package:cubit_239/cubit/counter_state.dart';
+import 'package:cubit_239/list/cubit/list_cubit.dart';
+import 'package:cubit_239/list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => CounterCubit(),),
+        BlocProvider(create: (context) => ListCubit(),),
+      ],
+      child: MyApp()
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -34,17 +42,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: BlocProvider(
-        create: (context) => CounterCubit(),
-        child: MyHomePage(),
-      ),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-
-
   @override
   Widget build(BuildContext context) {
     print('main build called');
@@ -86,30 +89,45 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            BlocBuilder<CounterCubit, CounterState>(
-                builder: (_, state){
-                  print('bloc builder called');
-                  if(state.isLoading){
-                    return CircularProgressIndicator();
-                  } else if (state.isError){
-                    return Text('Error Occured!!');
-                  } else {
-                    return Text(
-                      '${state.count}',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    );
-                  }
-                })
+            BlocBuilder<CounterCubit, CounterState>(builder: (_, state) {
+              print('bloc builder called');
+              if (state.isLoading) {
+                return CircularProgressIndicator();
+              } else if (state.isError) {
+                return Text('Error Occured!!');
+              } else {
+                return Text(
+                  '${state.count}',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                );
+              }
+            })
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          //BlocProvider.of<CounterCubit>(context, listen: false).incrementCount();
-          context.read<CounterCubit>().incrementCount();
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              context.read<CounterCubit>().decrementCount();
+            },
+            child: Icon(Icons.remove),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              //BlocProvider.of<CounterCubit>(context, listen: false).incrementCount();
+              context.read<CounterCubit>().incrementCount();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ListPage()
+                  ));
+            },
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

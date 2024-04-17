@@ -10,6 +10,7 @@ class CounterCubit extends Cubit<CounterState>{
   /// events
 
   void incrementCount(){
+    ///loading
     emit(CounterState(count: state.count, isLoading: true));
 
     Timer(Duration(seconds: 5), (){
@@ -20,10 +21,36 @@ class CounterCubit extends Cubit<CounterState>{
         ///error
         emit(CounterState(count: state.count, isError: true));
       } else {
-        emit(CounterState(count: state.count+1,));
+        emit(CounterState(count: state.count+1));
       }
 
     });
+  }
+  
+  void decrementCount(){
+
+    if(state.count>0){
+      ///loading state
+      emit(CounterState(count: state.count, isLoading: true));
+
+      Timer(Duration(seconds: 5), (){
+
+        var randNo = Random().nextInt(500);
+        print(randNo);
+
+
+        if(randNo%11==0){
+          /// error state
+          emit(CounterState(count: state.count, isError: true));
+        } else {
+          /// actual success state
+          emit(CounterState(count: state.count-1));
+        }
+
+      });
+    }
+
+
   }
 
 }
